@@ -1,8 +1,15 @@
+"""
+状态码分为两种，三位数的是 HTTP 状态码，四位数的是业务状态码。业务状态码的第一位代表服务名，约定 server、entity、auth、identity
+分别为 1、2、3、4。
+
+RPC 调用时如果遇到不可恢复的错误，如调用超时（HTTP 408），则抛出错误。对于业务代码的错误，不抛出错误，而交返回结果由业务自行处理。
+
+"""
 import os
 from dataclasses import fields
-from typing import Dict, Text, Tuple
+from typing import Dict, Optional, Text, Tuple
 
-from flask import current_app, g, render_template
+from flask import current_app, g, jsonify, render_template
 
 _logger = None
 _sentry = None
@@ -43,6 +50,16 @@ def _return_string(status_code, string, sentry_capture=False, log=None):
     return string, status_code
 
 
+def _return_json(status_code: int, json, sentry_capture=False, log=None):
+    if sentry_capture and plugin_available("sentry"):
+        _sentry.captureException()
+    if log:
+        _logger.info(log)
+    resp = jsonify(json)
+    resp.status_code = status_code
+    return resp
+
+
 def _error_page(message: str, sentry_capture: bool = False, log: str = None):
     """return a error page with a message. if sentry is available, tell user that they can report the problem."""
     sentry_param = {}
@@ -80,7 +97,8 @@ def handle_exception_with_error_page(e: Exception) -> Text:
 
 
 def handle_exception_with_message(e: Exception) -> Tuple:
-    """处理抛出的异常，返回错误消息"""
+    """
+    处理调用上游服务时的错误，返回错误消息文本"""
     if isinstance(e, RpcTimeout):
         return _return_string(408, "Backend timeout", sentry_capture=True)
     elif isinstance(e, RpcResourceNotFound):
@@ -93,6 +111,47 @@ def handle_exception_with_message(e: Exception) -> Tuple:
         return _return_string(500, "Server internal error", sentry_capture=True)
     else:
         return _return_string(500, "Server internal error", sentry_capture=True)
+
+
+def handle_exception_with_json(e: Exception, lazy=False) -> Optional[Tuple]:
+    """
+    处理调用上游服务时的错误，返回 JSON Response （调用方直接返回）或 None（交给调用方自己处理错误）
+
+    Usage:
+
+    ```
+    try:
+        result = SomeRPC.call()
+    except Exception as e:
+        ret = handle_exception_with_json(e)
+        if ret:
+            return ret  # return if there is un-recoverable failure
+        else:
+            pass  # handle business exception
+    ```
+
+    ```
+    try:
+        result = SomeRPC.call()
+    except Exception as e:
+        return handle_exception_with_json(e)  # not recommended. only for legacy systems.
+    ```
+
+    :param e: 错误
+    :param lazy: 如果为 true，代替业务方处理客户端错误以减少样板代码
+    :return:
+    """
+    if isinstance(e, RpcTimeout):
+        return _return_json(408, {"success": False,
+                                  "message": "Backend timeout"})
+    elif isinstance(e, RpcServerException):
+        return _return_json(500, {"success": False,
+                                  "message": "Server internal error"})
+    if lazy:
+        return _return_json(400, {"success": False,
+                                  "message": "Bad request"})
+    else:
+        return None
 
 
 def ensure_slots(cls, dct: Dict):
