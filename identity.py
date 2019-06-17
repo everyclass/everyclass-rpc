@@ -38,8 +38,8 @@ class Login:
             ValueError("Empty Student ID")
         if not password:
             raise ValueError("Empty password")
-        resp = HttpRpc.call(method='POST',
-                            url='{}/login'.format(base_url()),
+        resp = HttpRpc.call(method='GET',
+                            url=f'{base_url()}/login',
                             data={'student_id': student_id, 'password': password},
                             retry=True)
         return GeneralResponse.make(resp)
@@ -54,7 +54,7 @@ class Register:
         4007 已经注册过了
         """
         resp = HttpRpc.call(method='POST',
-                            url='{}/register'.format(base_url()),
+                            url=f'{base_url()}/register',
                             data={'student_id': student_id},
                             retry=True)
         return GeneralResponse.make(resp)
@@ -65,10 +65,10 @@ class Register:
 
         4001 用户名为空
         4007 已经注册过了
-        5001 未定义的错误
+        4501 未定义的错误
         """
         resp = HttpRpc.call(method='POST',
-                            url='{}/register/byEmail'.format(base_url()),
+                            url=f'{base_url()}/register/byEmail',
                             data={'student_id': student_id},
                             retry=True)
         return GeneralResponse.make(resp)
