@@ -33,6 +33,18 @@ class EmailSetPasswordResponse:
     def make(cls, dct: Dict) -> "EmailSetPasswordResponse":
         return cls(**ensure_slots(cls, dct))
 
+
+@dataclass
+class RegisterByPasswordResponse:
+    success: bool
+    err_code: field(default_factory=int)
+    message: str
+    request_id: field(default_factory=str)
+
+    @classmethod
+    def make(cls, dct: Dict) -> "RegisterByPasswordResponse":
+        return cls(**ensure_slots(cls, dct))
+
 @dataclass
 class PasswordStrengthResponse:
     success: bool
@@ -195,7 +207,7 @@ class Register:
                                   'captcha_rand'  : captcha_rand,
                                   'remote_addr'   : remote_addr},
                             retry=True)
-        return GeneralResponse.make(resp)
+        return RegisterByPasswordResponse.make(resp)
 
     @classmethod
     def check_password_strength(cls, password: str):
