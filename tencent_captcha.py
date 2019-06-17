@@ -21,9 +21,9 @@ class TencentCaptcha:
 
     @classmethod
     def verify(cls):
-        if not all(map(request.form.get, ["captcha-ticket", "captcha-rand"])):
+        if not all(map(request.json.get, ["captcha_ticket", "captcha_rand"])):
             return False
         else:
-            return cls._verify(request.form["captcha-ticket"],
-                               request.form["captcha-rand"],
-                               request.remote_addr)
+            return cls._verify(request.json["captcha_ticket"],
+                               request.json["captcha_rand"],
+                               request.json["remote_addr"])

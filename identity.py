@@ -61,7 +61,7 @@ class VisitorsResponse:
 
 class Login:
     @classmethod
-    def login(cls, student_id: str, password: str):
+    def login(cls, student_id: str, password: str, captcha_ticket: str, captcha_rand: str, remote_addr: str):
         """登录
 
         4001 用户名为空
@@ -77,7 +77,11 @@ class Login:
             raise ValueError("Empty password")
         resp = HttpRpc.call(method='GET',
                             url=f'{base_url()}/login',
-                            data={'student_id': student_id, 'password': password},
+                            data={'student_id'    : student_id,
+                                  'password'      : password,
+                                  'captcha_ticket': captcha_ticket,
+                                  'captcha_rand'  : captcha_rand,
+                                  'remote_addr'   : remote_addr},
                             retry=True)
         return GeneralResponse.make(resp)
 
