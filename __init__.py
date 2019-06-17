@@ -106,14 +106,17 @@ def handle_exception_with_json(e: Exception, lazy=False) -> Optional[Tuple]:
     :return:
     """
     if isinstance(e, RpcTimeout):
-        return _return_json(408, {"success": False,
-                                  "message": f"Backend timeout. Root cause: {repr(e)}"})
+        return _return_json(408, {"success" : False,
+                                  "err_code": 408,
+                                  "message" : f"Backend timeout. Root cause: {repr(e)}"})
     elif isinstance(e, RpcServerException):
-        return _return_json(500, {"success": False,
-                                  "message": f"Server internal error. Root cause: {repr(e)}"})
+        return _return_json(500, {"success" : False,
+                                  "err_code": 500,
+                                  "message" : f"Server internal error. Root cause: {repr(e)}"})
     if lazy:
-        return _return_json(400, {"success": False,
-                                  "message": f"Bad request. Root cause: {repr(e)}"})
+        return _return_json(400, {"success" : False,
+                                  "err_code": 400,
+                                  "message" : f"Bad request. Root cause: {repr(e)}"})
     else:
         return None
 

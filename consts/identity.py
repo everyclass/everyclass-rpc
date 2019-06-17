@@ -20,4 +20,4 @@ E_INVALID_PRIVACY_LEVEL = Error(4101, "Invalid preference value")  # 无效的�
 E_LOGIN_REQUIRED = Error(4102, "Login required")  # 需要登录
 
 # 5XX 开头为服务器内部错误
-E_INTERNAL_ERROR = Error(4501, "Internal error")  # 内部未定义的错误
+E_BE_INTERNAL = Error(4501, "Backend internal error")  # 上游服务错误
