@@ -169,7 +169,8 @@ class Register:
         return EmailSetPasswordResponse.make(resp)
 
     @classmethod
-    def register_by_password(cls, student_id: str, password: str, jw_password: str):
+    def register_by_password(cls, student_id: str, password: str, jw_password: str, captcha_ticket: str,
+                             captcha_rand: str, remote_addr: str):
         """使用密码注册
 
         4001 学号为空
@@ -187,9 +188,12 @@ class Register:
 
         resp = HttpRpc.call(method='POST',
                             url=f'{base_url()}/register/byPassword',
-                            data={'student_id' : student_id,
-                                  'password'   : password,
-                                  'jw_password': jw_password},
+                            data={'student_id'    : student_id,
+                                  'password'      : password,
+                                  'jw_password'   : jw_password,
+                                  'captcha_ticket': captcha_ticket,
+                                  'captcha_rand'  : captcha_rand,
+                                  'remote_addr'   : remote_addr},
                             retry=True)
         return GeneralResponse.make(resp)
 
