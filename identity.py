@@ -23,6 +23,17 @@ class GeneralResponse:
 
 
 @dataclass
+class EmailSetPasswordResponse:
+    success: bool
+    err_code: field(default_factory=int)
+    message: str
+    student_id: field(default_factory=str)
+
+    @classmethod
+    def make(cls, dct: Dict) -> "EmailSetPasswordResponse":
+        return cls(**ensure_slots(cls, dct))
+
+@dataclass
 class PasswordStrengthResponse:
     success: bool
     strong: bool
@@ -155,7 +166,7 @@ class Register:
                             data={'token'   : token,
                                   'password': password},
                             retry=True)
-        return GeneralResponse.make(resp)
+        return EmailSetPasswordResponse.make(resp)
 
     @classmethod
     def register_by_password(cls, student_id: str, password: str, jw_password: str):
