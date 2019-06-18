@@ -228,6 +228,9 @@ class Register:
         4011 请求 ID 为空
         4100 无效的请求 ID
         4007 已经注册过了
+        4200 验证成功
+        4201 下次查询
+        4202 密码错误
         """
         if not request_id:
             raise ValueError("Empty request ID")
@@ -238,6 +241,8 @@ class Register:
                             retry=True)
         return GeneralResponse.make(resp)
 
+
+class UserCentre:
     @classmethod
     def set_privacy_level(cls, student_id: str, privacy_level: int):
         """设置隐私级别
