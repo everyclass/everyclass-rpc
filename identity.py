@@ -45,6 +45,7 @@ class RegisterByPasswordResponse:
     def make(cls, dct: Dict) -> "RegisterByPasswordResponse":
         return cls(**ensure_slots(cls, dct))
 
+
 @dataclass
 class PasswordStrengthResponse:
     success: bool
