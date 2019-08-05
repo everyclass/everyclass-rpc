@@ -192,7 +192,7 @@ class CardResultStudentItem:
     def make(cls, dct: Dict) -> "CardResultStudentItem":
         dct["klass"] = dct.pop("class")
         dct["student_id"] = dct.pop("student_code")
-        dct["student_id_encoded"] = encrypt("student", dct.get("student_id"))
+        dct["student_id_encoded"] = encrypt("student", dct["student_id"])
         return cls(**ensure_slots(cls, dct))
 
 

@@ -51,9 +51,9 @@ def _return_string(status_code, string, sentry_capture=False, log=None):
 
 
 def _return_json(status_code: int, json, sentry_capture=False, log=None):
-    if sentry_capture and plugin_available("sentry"):
+    if sentry_capture and plugin_available("sentry") and _sentry:
         _sentry.captureException()
-    if log:
+    if log and _logger:
         _logger.info(log)
     resp = jsonify(json)
     resp.status_code = status_code
