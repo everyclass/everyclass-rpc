@@ -37,7 +37,7 @@ def plugin_available(plugin_name: str) -> bool:
     """
     mode = os.environ.get("MODE", None)
     if mode:
-        return mode.lower() in getattr(current_app.config, "{}_AVAILABLE_IN".format(plugin_name).upper())
+        return mode.lower() in current_app.config[f"{plugin_name.upper()}_AVAILABLE_IN"]
     else:
         raise EnvironmentError("MODE not in environment variables")
 
