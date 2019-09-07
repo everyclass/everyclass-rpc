@@ -5,11 +5,12 @@
 RPC 调用时如果遇到不可恢复的错误，如调用超时（HTTP 408），则抛出错误。对于业务代码的错误，不抛出错误，而交返回结果由业务自行处理。
 
 """
-import os
 from dataclasses import fields
 from typing import Dict, Optional, Tuple
 
-from flask import current_app, jsonify
+from flask import jsonify
+
+from everyclass.common.flask import plugin_available
 
 _logger = None
 _sentry = None
@@ -28,18 +29,6 @@ def init(logger=None, sentry=None, resource_id_encrypt_function=None):
         _sentry = sentry
     if resource_id_encrypt_function:
         _resource_id_encrypt = resource_id_encrypt_function
-
-
-def plugin_available(plugin_name: str) -> bool:
-    """
-    check if a plugin (Sentry, apm, logstash) is available in the current environment.
-    :return True if available else False
-    """
-    mode = os.environ.get("MODE", None)
-    if mode:
-        return mode.lower() in current_app.config[f"{plugin_name.upper()}_AVAILABLE_IN"]
-    else:
-        raise EnvironmentError("MODE not in environment variables")
 
 
 def _return_string(status_code, string, sentry_capture=False, log=None):
