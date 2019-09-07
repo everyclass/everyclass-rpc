@@ -1,10 +1,21 @@
 from dataclasses import dataclass, field
 from typing import Dict, List, Tuple, Union
 
-from flask import current_app as app
-
 from everyclass.rpc import RpcException, ensure_slots
 from everyclass.rpc.http import HttpRpc
+
+ENTITY_BASE_URL = 'everyclass-entity'
+REQUEST_TOKEN = None
+
+
+def set_base_url(base_url: str) -> None:
+    global ENTITY_BASE_URL
+    ENTITY_BASE_URL = base_url
+
+
+def set_request_token(token: str) -> None:
+    global REQUEST_TOKEN
+    REQUEST_TOKEN = token
 
 
 def encrypt(resource_type: str, resource_id: str):
@@ -307,7 +318,7 @@ def teacher_list_to_tid_str(teachers: List[CardResultTeacherItem]) -> str:
     return ";".join(sorted([t.teacher_id for t in teachers]))
 
 
-class APIServer:
+class Entity:
     @classmethod
     def search(cls, keyword: str) -> SearchResult:
         """在 API Server 上搜索
@@ -318,11 +329,9 @@ class APIServer:
         keyword = keyword.replace("/", "")
 
         resp = HttpRpc.call(method="GET",
-                            url='{}/search/query?key={}&page_size={}'.format(app.config['API_SERVER_BASE_URL'],
-                                                                             keyword,
-                                                                             100),
+                            url=f'{ENTITY_BASE_URL}/search/query?key={keyword}&page_size={100}',
                             retry=True,
-                            headers={'X-Auth-Token': app.config['API_SERVER_TOKEN']})
+                            headers={'X-Auth-Token': REQUEST_TOKEN})
         if resp["status"] != "success":
             raise RpcException('API Server returns non-success status')
         page_num = resp['info']['page_num']
@@ -332,12 +341,9 @@ class APIServer:
         if page_num > 1:
             for page_index in range(2, page_num + 1):
                 resp = HttpRpc.call(method="GET",
-                                    url='{}/search/query?key={}&page_size={}&page_index={}'.format(
-                                            app.config['API_SERVER_BASE_URL'],
-                                            keyword,
-                                            100, page_index),
+                                    url=f'{ENTITY_BASE_URL}/search/query?key={keyword}&page_size={100}&page_index={page_index}',
                                     retry=True,
-                                    headers={'X-Auth-Token': app.config['API_SERVER_TOKEN']})
+                                    headers={'X-Auth-Token': REQUEST_TOKEN})
                 if resp["status"] != "success":
                     raise RpcException('API Server returns non-success status')
                 search_result.append(resp)
@@ -353,10 +359,9 @@ class APIServer:
         :return:
         """
         resp = HttpRpc.call(method="GET",
-                            url='{}/student/{}'.format(app.config['API_SERVER_BASE_URL'],
-                                                       student_id),
+                            url=f'{ENTITY_BASE_URL}/student/{student_id}',
                             retry=True,
-                            headers={'X-Auth-Token': app.config['API_SERVER_TOKEN']})
+                            headers={'X-Auth-Token': REQUEST_TOKEN})
         if resp["status"] != "success":
             raise RpcException('API Server returns non-success status')
         search_result = StudentResult.make(resp)
@@ -372,11 +377,9 @@ class APIServer:
         :return:
         """
         resp = HttpRpc.call(method="GET",
-                            url='{}/student/{}/timetable/{}'.format(app.config['API_SERVER_BASE_URL'],
-                                                                    student_id,
-                                                                    semester),
+                            url=f'{ENTITY_BASE_URL}/student/{student_id}/timetable/{semester}',
                             retry=True,
-                            headers={'X-Auth-Token': app.config['API_SERVER_TOKEN']})
+                            headers={'X-Auth-Token': REQUEST_TOKEN})
         if resp["status"] != "success":
             raise RpcException('API Server returns non-success status')
         search_result = StudentTimetableResult.make(resp)
@@ -392,11 +395,9 @@ class APIServer:
         :return:
         """
         resp = HttpRpc.call(method="GET",
-                            url='{}/teacher/{}/timetable/{}'.format(app.config['API_SERVER_BASE_URL'],
-                                                                    teacher_id,
-                                                                    semester),
+                            url=f'{ENTITY_BASE_URL}/teacher/{teacher_id}/timetable/{semester}',
                             retry=True,
-                            headers={'X-Auth-Token': app.config['API_SERVER_TOKEN']})
+                            headers={'X-Auth-Token': REQUEST_TOKEN})
         if resp["status"] != "success":
             raise RpcException('API Server returns non-success status')
         search_result = TeacherTimetableResult.make(resp)
@@ -411,11 +412,9 @@ class APIServer:
         :return:
         """
         resp = HttpRpc.call(method="GET",
-                            url='{}/room/{}/timetable/{}'.format(app.config['API_SERVER_BASE_URL'],
-                                                                 room_id,
-                                                                 semester),
+                            url=f'{ENTITY_BASE_URL}/room/{room_id}/timetable/{semester}',
                             retry=True,
-                            headers={'X-Auth-Token': app.config['API_SERVER_TOKEN']})
+                            headers={'X-Auth-Token': REQUEST_TOKEN})
         if resp["status"] != "success":
             raise RpcException('API Server returns non-success status')
         search_result = ClassroomTimetableResult.make(resp)
@@ -430,10 +429,9 @@ class APIServer:
         :return:
         """
         resp = HttpRpc.call(method="GET",
-                            url='{}/card/{}/timetable/{}'.format(app.config['API_SERVER_BASE_URL'], card_id,
-                                                                 semester),
+                            url=f'{ENTITY_BASE_URL}/card/{card_id}/timetable/{semester}',
                             retry=True,
-                            headers={'X-Auth-Token': app.config['API_SERVER_TOKEN']})
+                            headers={'X-Auth-Token': REQUEST_TOKEN})
         if resp["status"] != "success":
             raise RpcException('API Server returns non-success status')
         search_result = CardResult.make(resp)

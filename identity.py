@@ -2,14 +2,15 @@
 from dataclasses import dataclass, field
 from typing import Dict, List
 
-from flask import current_app
-
 from everyclass.rpc import ensure_slots
 from everyclass.rpc.http import HttpRpc
 
+BASE_URL = 'everyclass-identity'
 
-def base_url():
-    return current_app.config['IDENTITY_BASE_URL']
+
+def set_base_url(base_url: str) -> None:
+    global BASE_URL
+    BASE_URL = base_url
 
 
 @dataclass
@@ -101,7 +102,7 @@ class Login:
         if not password:
             raise ValueError("Empty password")
         resp = HttpRpc.call(method='GET',
-                            url=f'{base_url()}/login',
+                            url=f'{BASE_URL}/login',
                             data={'student_id'    : student_id,
                                   'password'      : password,
                                   'captcha_ticket': captcha_ticket,
@@ -123,7 +124,7 @@ class Register:
             raise ValueError("Empty student ID")
 
         resp = HttpRpc.call(method='GET',
-                            url=f'{base_url()}/register',
+                            url=f'{BASE_URL}/register',
                             data={'student_id': student_id},
                             retry=True)
         return GeneralResponse.make(resp)
@@ -140,7 +141,7 @@ class Register:
             raise ValueError("Empty student ID")
 
         resp = HttpRpc.call(method='POST',
-                            url=f'{base_url()}/register/byEmail',
+                            url=f'{BASE_URL}/register/byEmail',
                             data={'student_id': student_id},
                             retry=True)
         return GeneralResponse.make(resp)
@@ -156,7 +157,7 @@ class Register:
             raise ValueError("Empty token")
 
         resp = HttpRpc.call(method='GET',
-                            url=f'{base_url()}/register/emailVerification',
+                            url=f'{BASE_URL}/register/emailVerification',
                             data={'token': token},
                             retry=True)
         return GeneralResponse.make(resp)
@@ -176,7 +177,7 @@ class Register:
             raise ValueError("Empty password")
 
         resp = HttpRpc.call(method='POST',
-                            url=f'{base_url()}/register/emailVerification',
+                            url=f'{BASE_URL}/register/emailVerification',
                             data={'token'   : token,
                                   'password': password},
                             retry=True)
@@ -201,7 +202,7 @@ class Register:
             raise ValueError("Empty JW password")
 
         resp = HttpRpc.call(method='POST',
-                            url=f'{base_url()}/register/byPassword',
+                            url=f'{BASE_URL}/register/byPassword',
                             data={'student_id'    : student_id,
                                   'password'      : password,
                                   'jw_password'   : jw_password,
@@ -218,7 +219,7 @@ class Register:
             raise ValueError("Empty password")
 
         resp = HttpRpc.call(method='GET',
-                            url=f'{base_url()}/register/passwordStrengthCheck',
+                            url=f'{BASE_URL}/register/passwordStrengthCheck',
                             data={'password': password},
                             retry=True)
         return PasswordStrengthResponse.make(resp)
@@ -238,7 +239,7 @@ class Register:
             raise ValueError("Empty request ID")
 
         resp = HttpRpc.call(method='GET',
-                            url=f'{base_url()}/register/byPassword/statusRefresh',
+                            url=f'{BASE_URL}/register/byPassword/statusRefresh',
                             data={'request_id': request_id},
                             retry=True)
         return GeneralResponse.make(resp)
@@ -258,7 +259,7 @@ class UserCentre:
             raise ValueError("Empty privacy level")
 
         resp = HttpRpc.call(method='POST',
-                            url=f'{base_url()}/setPreference',
+                            url=f'{BASE_URL}/setPreference',
                             data={'privacy_level': privacy_level},
                             headers={'STUDENT_ID': student_id},
                             retry=True)
@@ -272,7 +273,7 @@ class UserCentre:
             raise ValueError("Empty student ID")
 
         resp = HttpRpc.call(method='POST',
-                            url=f'{base_url()}/resetCalendarToken',
+                            url=f'{BASE_URL}/resetCalendarToken',
                             headers={'STUDENT_ID': student_id},
                             retry=True)
         return GeneralResponse.make(resp)
@@ -285,7 +286,7 @@ class UserCentre:
             raise ValueError("Empty student ID")
 
         resp = HttpRpc.call(method='GET',
-                            url=f'{base_url()}/visitors',
+                            url=f'{BASE_URL}/visitors',
                             headers={'STUDENT_ID': student_id},
                             retry=True)
         return VisitorsResponse.make(resp)

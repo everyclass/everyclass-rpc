@@ -132,7 +132,7 @@ def ensure_slots(cls, dct: Dict):
         del dct[key]  # delete unexpected keys
         from everyclass.rpc import _logger
         _logger.warn(
-                "Unexpected field `{}` is removed when converting dict to dataclass `{}`".format(key, cls.__name__))
+            "Unexpected field `{}` is removed when converting dict to dataclass `{}`".format(key, cls.__name__))
     return dct
 
 
