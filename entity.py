@@ -4,19 +4,6 @@ from typing import Dict, List, Tuple, Union
 from everyclass.rpc import RpcException, ensure_slots
 from everyclass.rpc.http import HttpRpc
 
-ENTITY_BASE_URL = 'everyclass-entity'
-REQUEST_TOKEN = None
-
-
-def set_base_url(base_url: str) -> None:
-    global ENTITY_BASE_URL
-    ENTITY_BASE_URL = base_url
-
-
-def set_request_token(token: str) -> None:
-    global REQUEST_TOKEN
-    REQUEST_TOKEN = token
-
 
 def encrypt(resource_type: str, resource_id: str):
     """资源加密函数的代理，当rpc模块初始化不指定加密函数时，返回待加密的原值"""
@@ -319,6 +306,17 @@ def teacher_list_to_tid_str(teachers: List[CardResultTeacherItem]) -> str:
 
 
 class Entity:
+    BASE_URL = 'everyclass-entity'
+    REQUEST_TOKEN = None
+
+    @classmethod
+    def set_base_url(cls, base_url: str) -> None:
+        cls.BASE_URL = base_url
+
+    @classmethod
+    def set_request_token(cls, token: str) -> None:
+        cls.REQUEST_TOKEN = token
+
     @classmethod
     def search(cls, keyword: str) -> SearchResult:
         """在 API Server 上搜索
@@ -329,9 +327,9 @@ class Entity:
         keyword = keyword.replace("/", "")
 
         resp = HttpRpc.call(method="GET",
-                            url=f'{ENTITY_BASE_URL}/search/query?key={keyword}&page_size={100}',
+                            url=f'{cls.BASE_URL}/search/query?key={keyword}&page_size={100}',
                             retry=True,
-                            headers={'X-Auth-Token': REQUEST_TOKEN})
+                            headers={'X-Auth-Token': cls.REQUEST_TOKEN})
         if resp["status"] != "success":
             raise RpcException('API Server returns non-success status')
         page_num = resp['info']['page_num']
@@ -341,9 +339,9 @@ class Entity:
         if page_num > 1:
             for page_index in range(2, page_num + 1):
                 resp = HttpRpc.call(method="GET",
-                                    url=f'{ENTITY_BASE_URL}/search/query?key={keyword}&page_size={100}&page_index={page_index}',
+                                    url=f'{cls.BASE_URL}/search/query?key={keyword}&page_size={100}&page_index={page_index}',
                                     retry=True,
-                                    headers={'X-Auth-Token': REQUEST_TOKEN})
+                                    headers={'X-Auth-Token': cls.REQUEST_TOKEN})
                 if resp["status"] != "success":
                     raise RpcException('API Server returns non-success status')
                 search_result.append(resp)
@@ -359,9 +357,9 @@ class Entity:
         :return:
         """
         resp = HttpRpc.call(method="GET",
-                            url=f'{ENTITY_BASE_URL}/student/{student_id}',
+                            url=f'{cls.BASE_URL}/student/{student_id}',
                             retry=True,
-                            headers={'X-Auth-Token': REQUEST_TOKEN})
+                            headers={'X-Auth-Token': cls.REQUEST_TOKEN})
         if resp["status"] != "success":
             raise RpcException('API Server returns non-success status')
         search_result = StudentResult.make(resp)
@@ -377,9 +375,9 @@ class Entity:
         :return:
         """
         resp = HttpRpc.call(method="GET",
-                            url=f'{ENTITY_BASE_URL}/student/{student_id}/timetable/{semester}',
+                            url=f'{cls.BASE_URL}/student/{student_id}/timetable/{semester}',
                             retry=True,
-                            headers={'X-Auth-Token': REQUEST_TOKEN})
+                            headers={'X-Auth-Token': cls.REQUEST_TOKEN})
         if resp["status"] != "success":
             raise RpcException('API Server returns non-success status')
         search_result = StudentTimetableResult.make(resp)
@@ -395,9 +393,9 @@ class Entity:
         :return:
         """
         resp = HttpRpc.call(method="GET",
-                            url=f'{ENTITY_BASE_URL}/teacher/{teacher_id}/timetable/{semester}',
+                            url=f'{cls.BASE_URL}/teacher/{teacher_id}/timetable/{semester}',
                             retry=True,
-                            headers={'X-Auth-Token': REQUEST_TOKEN})
+                            headers={'X-Auth-Token': cls.REQUEST_TOKEN})
         if resp["status"] != "success":
             raise RpcException('API Server returns non-success status')
         search_result = TeacherTimetableResult.make(resp)
@@ -412,9 +410,9 @@ class Entity:
         :return:
         """
         resp = HttpRpc.call(method="GET",
-                            url=f'{ENTITY_BASE_URL}/room/{room_id}/timetable/{semester}',
+                            url=f'{cls.BASE_URL}/room/{room_id}/timetable/{semester}',
                             retry=True,
-                            headers={'X-Auth-Token': REQUEST_TOKEN})
+                            headers={'X-Auth-Token': cls.REQUEST_TOKEN})
         if resp["status"] != "success":
             raise RpcException('API Server returns non-success status')
         search_result = ClassroomTimetableResult.make(resp)
@@ -429,9 +427,9 @@ class Entity:
         :return:
         """
         resp = HttpRpc.call(method="GET",
-                            url=f'{ENTITY_BASE_URL}/card/{card_id}/timetable/{semester}',
+                            url=f'{cls.BASE_URL}/card/{card_id}/timetable/{semester}',
                             retry=True,
-                            headers={'X-Auth-Token': REQUEST_TOKEN})
+                            headers={'X-Auth-Token': cls.REQUEST_TOKEN})
         if resp["status"] != "success":
             raise RpcException('API Server returns non-success status')
         search_result = CardResult.make(resp)
