@@ -9,7 +9,7 @@ from everyclass.rpc.http import HttpRpc
 @dataclass
 class VerifyEmailTokenResult:
     success: bool
-    request_id: field(default_factory=str)
+    request_id: str = field(default_factory=str)
 
     @classmethod
     def make(cls, dct: Dict) -> "VerifyEmailTokenResult":
@@ -55,7 +55,7 @@ class Auth:
                             url=f'{cls.BASE_URL}/register_by_password',
                             data={'request_id': request_id,
                                   'student_id': student_id,
-                                  'password'  : password})
+                                  'password': password})
 
     @classmethod
     def get_result(cls, request_id: str):
