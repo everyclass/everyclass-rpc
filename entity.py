@@ -265,11 +265,8 @@ class CardResult:
     card_id: str  # card id
     card_id_encoded: str  # 编码后的 card id
     semester: str  # 学期
-    union_name: str  # 合班（教学班）名称
-    hour: int  # 课时
     lesson: str  # 上课时间，如10506
     type: str  # 课程类型
-    picked: int  # 选课人数
     room: str  # 教室名
     room_id: str  # 教室 ID
     room_id_encoded: str  # 编码后的教室 ID
@@ -291,7 +288,6 @@ class CardResult:
         dct['weeks'] = dct.pop("week_list")
         dct['week_string'] = weeks_to_string(dct['weeks'])
         dct['course_id'] = dct.pop('course_code')
-        dct['union_name'] = dct.pop('tea_class')
         return cls(**ensure_slots(cls, dct))
 
 
