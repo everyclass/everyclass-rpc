@@ -150,6 +150,7 @@ class ClassroomTimetableResult:
     name: str
     building: str
     campus: str
+    classroom_type: str
     semester: str
     semesters: List[str]
     cards: List[CardItem]
@@ -159,6 +160,7 @@ class ClassroomTimetableResult:
         del dct["status"]
         dct['semesters'] = sorted(dct.pop('semester_list'))
         dct['room_id'] = dct.pop("room_code")
+        dct['classroom_type'] = dct.pop("type")
         dct['cards'] = [CardItem.make(x) for x in dct.pop('card_list')]
 
         dct['room_id_encoded'] = encrypt('room', dct['room_id'])
