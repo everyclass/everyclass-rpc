@@ -22,6 +22,7 @@ class SearchResultStudentItem:
     semesters: List[str]
     deputy: str
     klass: str
+
     # pattern: str
 
     @classmethod
@@ -228,6 +229,7 @@ class StudentTimetableResult:
     klass: str  # 班级
     cards: List[CardItem]  # card 列表
     semester: str  # 当前学期
+    remark: str  # 备注
     semesters: List[str] = field(default_factory=list)  # 学期列表
 
     @classmethod
@@ -251,6 +253,7 @@ class TeacherTimetableResult:
     unit: str  # 所在单位
     cards: List[CardItem]  # card 列表
     semester: str  # 当前学期
+    remark: str  # 备注
     semesters: List[str] = field(default_factory=list)  # 所有学期
 
     @classmethod
