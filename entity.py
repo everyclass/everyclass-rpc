@@ -22,7 +22,7 @@ class SearchResultStudentItem:
     semesters: List[str]
     deputy: str
     klass: str
-    pattern: str
+    # pattern: str
 
     @classmethod
     def make(cls, dct: Dict) -> "SearchResultStudentItem":
@@ -42,7 +42,8 @@ class SearchResultTeacherItem:
     semesters: List[str]
     unit: str
     title: str
-    pattern: str
+
+    # pattern: str
 
     @classmethod
     def make(cls, dct: Dict) -> "SearchResultTeacherItem":
@@ -61,7 +62,8 @@ class SearchResultClassroomItem:
     semesters: List[str]
     campus: str
     building: str
-    pattern: str  # 搜索结果来源
+
+    # pattern: str  # 搜索结果来源
 
     @classmethod
     def make(cls, dct: Dict) -> "SearchResultClassroomItem":
