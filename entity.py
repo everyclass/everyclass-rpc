@@ -245,6 +245,25 @@ class StudentTimetableResult:
 
 
 @dataclass
+class TeacherResult:
+    name: str  # 姓名
+    teacher_id: str  # 教工号
+    teacher_id_encoded: str  # 编码后的教工号
+    degree: str  # 教师学历（可能为空）
+    title: str  # 职称
+    unit: str  # 所在单位
+    semesters: List[str] = field(default_factory=list)  # optional field
+
+    @classmethod
+    def make(cls, dct: Dict) -> "TeacherResult":
+        del dct["status"]
+        dct['semesters'] = sorted(dct.pop('semester_list'))
+        dct['teacher_id'] = dct.pop('teacher_code')
+        dct["teacher_id_encoded"] = encrypt("teacher", dct["teacher_id"])
+        return cls(**ensure_slots(cls, dct))
+
+
+@dataclass
 class TeacherTimetableResult:
     name: str  # 姓名
     teacher_id: str  # 教工号
@@ -355,7 +374,7 @@ class Entity:
     @classmethod
     def get_student(cls, student_id: str):
         """
-        根据学号获得学生课表
+        根据学号获得学生信息
 
         :param student_id: 学号
         :return:
@@ -385,6 +404,23 @@ class Entity:
         if resp["status"] != "success":
             raise RpcException('API Server returns non-success status')
         search_result = StudentTimetableResult.make(resp)
+        return search_result
+
+    @classmethod
+    def get_teacher(cls, teacher_id: str):
+        """
+        根据教工号获得教师信息
+
+        :param teacher_id: 学号
+        :return:
+        """
+        resp = HttpRpc.call(method="GET",
+                            url=f'{cls.BASE_URL}/teacher/{teacher_id}',
+                            retry=True,
+                            headers={'X-Auth-Token': cls.REQUEST_TOKEN})
+        if resp["status"] != "success":
+            raise RpcException('API Server returns non-success status')
+        search_result = TeacherResult.make(resp)
         return search_result
 
     @classmethod
