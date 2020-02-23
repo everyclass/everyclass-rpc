@@ -109,6 +109,7 @@ class TeacherItem:
     teacher_id_encoded: str
     name: str
     title: str
+    unit: str
 
     @classmethod
     def make(cls, dct: Dict) -> "TeacherItem":
