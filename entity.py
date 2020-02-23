@@ -273,7 +273,7 @@ class CardResult:
     card_id_encoded: str  # 编码后的 card id
     semester: str  # 学期
     lesson: str  # 上课时间，如10506
-    type: str  # 课程类型
+    # type: str  # 课程类型
     room: str  # 教室名
     room_id: str  # 教室 ID
     room_id_encoded: str  # 编码后的教室 ID
