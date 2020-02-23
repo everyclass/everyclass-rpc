@@ -427,7 +427,7 @@ class Entity:
         :return:
         """
         resp = HttpRpc.call(method="GET",
-                            url=f'{cls.BASE_URL}/card/{card_id}/timetable/{semester}',
+                            url=f'{cls.BASE_URL}/lesson/{card_id}/timetable/{semester}',
                             retry=True,
                             headers={'X-Auth-Token': cls.REQUEST_TOKEN})
         if resp["status"] != "success":
