@@ -31,7 +31,7 @@ class SearchResultStudentItem:
         dct['student_id'] = dct.pop("code")  # rename
         dct['student_id_encoded'] = encrypt('student', dct['student_id'])
         dct['klass'] = dct.pop("class")
-        del dct["type"]
+        del dct["group"]
         return cls(**ensure_slots(cls, dct))
 
 
@@ -51,7 +51,7 @@ class SearchResultTeacherItem:
         dct['semesters'] = sorted(dct.pop("semester_list"))
         dct['teacher_id'] = dct.pop("code")  # rename
         dct['teacher_id_encoded'] = encrypt('teacher', dct['teacher_id'])
-        del dct["type"]
+        del dct["group"]
         return cls(**ensure_slots(cls, dct))
 
 
@@ -71,7 +71,7 @@ class SearchResultClassroomItem:
         dct['semesters'] = sorted(dct.pop("semester_list"))
         dct['room_id'] = dct.pop("code")  # rename
         dct['room_id_encoded'] = encrypt('room', dct['room_id'])
-        del dct["type"]
+        del dct["group"]
         return cls(**ensure_slots(cls, dct))
 
 
