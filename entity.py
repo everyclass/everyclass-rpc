@@ -479,7 +479,7 @@ class Entity:
                             retry=True)
         if resp["status"] != "OK":
             raise RpcException('Entity returns non-success status')
-        return resp["room_list"]
+        return resp["available_room"]
 
 
 def weeks_to_string(original_weeks: List[int]) -> str:
