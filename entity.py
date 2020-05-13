@@ -28,7 +28,7 @@ class SearchResultStudentItem:
     @classmethod
     def make(cls, dct: Dict) -> "SearchResultStudentItem":
         dct['semesters'] = sorted(dct.pop("semester_list"))
-        dct['student_id'] = dct.pop("student_code")  # rename
+        dct['student_id'] = dct.pop("code")  # rename
         dct['student_id_encoded'] = encrypt('student', dct['student_id'])
         dct['klass'] = dct.pop("class")
         del dct["type"]
@@ -49,7 +49,7 @@ class SearchResultTeacherItem:
     @classmethod
     def make(cls, dct: Dict) -> "SearchResultTeacherItem":
         dct['semesters'] = sorted(dct.pop("semester_list"))
-        dct['teacher_id'] = dct.pop("teacher_code")  # rename
+        dct['teacher_id'] = dct.pop("code")  # rename
         dct['teacher_id_encoded'] = encrypt('teacher', dct['teacher_id'])
         del dct["type"]
         return cls(**ensure_slots(cls, dct))
@@ -69,7 +69,7 @@ class SearchResultClassroomItem:
     @classmethod
     def make(cls, dct: Dict) -> "SearchResultClassroomItem":
         dct['semesters'] = sorted(dct.pop("semester_list"))
-        dct['room_id'] = dct.pop("room_code")  # rename
+        dct['room_id'] = dct.pop("code")  # rename
         dct['room_id_encoded'] = encrypt('room', dct['room_id'])
         del dct["type"]
         return cls(**ensure_slots(cls, dct))
@@ -84,13 +84,12 @@ class SearchResult:
     @classmethod
     def make(cls, dct: Dict) -> "SearchResult":
         del dct["status"]
-        del dct["info"]
         dct["students"] = [SearchResultStudentItem.make(x) for x in dct['data'] if
-                           'type' in x and x['type'] == 'student']
+                           'type' in x and x['group'] == 'student']
         dct["teachers"] = [SearchResultTeacherItem.make(x) for x in dct['data'] if
-                           'type' in x and x['type'] == 'teacher']
+                           'type' in x and x['group'] == 'teacher']
         dct["classrooms"] = [SearchResultClassroomItem.make(x) for x in dct['data'] if
-                             'type' in x and x['type'] == 'room']
+                             'type' in x and x['group'] == 'room']
         dct.pop("data")
 
         return cls(**ensure_slots(cls, dct))
@@ -342,7 +341,7 @@ class Entity:
 
     @classmethod
     def search(cls, keyword: str) -> SearchResult:
-        """在 API Server 上搜索
+        """搜索
 
         :param keyword: 需要搜索的关键词
         :return: 搜索结果列表
@@ -350,24 +349,12 @@ class Entity:
         keyword = keyword.replace("/", "")
 
         resp = HttpRpc.call(method="GET",
-                            url=f'{cls.BASE_URL}/search/query?key={keyword}&page_size={100}',
+                            url=f'{cls.BASE_URL}/search/query?key={keyword}',
                             retry=True,
                             headers={'X-Auth-Token': cls.REQUEST_TOKEN})
         if resp["status"] != "success":
             raise RpcException('API Server returns non-success status')
-        page_num = resp['info']['page_num']
         search_result = SearchResult.make(resp)
-
-        # 多页结果
-        if page_num > 1:
-            for page_index in range(2, page_num + 1):
-                resp = HttpRpc.call(method="GET",
-                                    url=f'{cls.BASE_URL}/search/query?key={keyword}&page_size={100}&page_index={page_index}',
-                                    retry=True,
-                                    headers={'X-Auth-Token': cls.REQUEST_TOKEN})
-                if resp["status"] != "success":
-                    raise RpcException('API Server returns non-success status')
-                search_result.append(resp)
 
         return search_result
 
@@ -468,12 +455,31 @@ class Entity:
         """
         resp = HttpRpc.call(method="GET",
                             url=f'{cls.BASE_URL}/lesson/{card_id}/timetable/{semester}',
-                            retry=True,
-                            headers={'X-Auth-Token': cls.REQUEST_TOKEN})
+                            retry=True)
         if resp["status"] != "success":
             raise RpcException('API Server returns non-success status')
         search_result = CardResult.make(resp)
         return search_result
+
+    @classmethod
+    def get_rooms(cls) -> Dict[str, Dict[str, List[str]]]:
+        """获得所有校区和楼栋的教室ID"""
+        resp = HttpRpc.call(method="GET",
+                            url=f'{cls.BASE_URL}/room',
+                            retry=True)
+        if resp["status"] != "OK":
+            raise RpcException('Entity returns non-success status')
+        return resp["room_group"]
+
+    @classmethod
+    def get_available_rooms(cls, week: int, session: str, campus: str, building: str):
+        """获得指定地点指定时间的可用教室"""
+        resp = HttpRpc.call(method="GET",
+                            url=f'{cls.BASE_URL}/search/room/available?week={week}&session={session}&campus={campus}&building={building}',
+                            retry=True)
+        if resp["status"] != "OK":
+            raise RpcException('Entity returns non-success status')
+        return resp["room_list"]
 
 
 def weeks_to_string(original_weeks: List[int]) -> str:
