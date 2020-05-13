@@ -352,7 +352,7 @@ class Entity:
                             url=f'{cls.BASE_URL}/search/query?key={keyword}',
                             retry=True,
                             headers={'X-Auth-Token': cls.REQUEST_TOKEN})
-        if resp["status"] != "success":
+        if resp["status"] != "OK":
             raise RpcException('API Server returns non-success status')
         search_result = SearchResult.make(resp)
 
