@@ -465,7 +465,7 @@ class Entity:
     def get_rooms(cls) -> Dict[str, Dict[str, List[str]]]:
         """获得所有校区和楼栋的教室ID"""
         resp = HttpRpc.call(method="GET",
-                            url=f'{cls.BASE_URL}/room',
+                            url=f'{cls.BASE_URL}/room/',
                             retry=True)
         if resp["status"] != "OK":
             raise RpcException('Entity returns non-success status')
@@ -475,7 +475,7 @@ class Entity:
     def get_available_rooms(cls, week: int, session: str, campus: str, building: str):
         """获得指定地点指定时间的可用教室"""
         resp = HttpRpc.call(method="GET",
-                            url=f'{cls.BASE_URL}/search/room/available?week={week}&session={session}&campus={campus}&building={building}',
+                            url=f'{cls.BASE_URL}/room/available?week={week}&session={session}&campus={campus}&building={building}',
                             retry=True)
         if resp["status"] != "OK":
             raise RpcException('Entity returns non-success status')
