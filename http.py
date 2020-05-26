@@ -55,6 +55,6 @@ class HttpRpc:
             cls._status_code_raise(api_response)
             response_json = api_response.json()
             if _logger:
-                _logger.debug('Got RPC result', extra={"rpc_result": response_json})
+                _logger.debug(f'Got RPC result: {response_json}', extra={"rpc_result": response_json})
             return response_json
         raise RpcTimeout('Timeout when calling {}. Tried {} time(s).'.format(url, trial_total))
